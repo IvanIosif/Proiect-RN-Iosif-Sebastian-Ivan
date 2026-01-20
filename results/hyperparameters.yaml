@@ -1,0 +1,6 @@
+architecture: Robust Perceptron Nivel 2
+batch_size: 32
+epochs: 50
+learning_rate: 0.001
+loss_function: binary_crossentropy
+optimizer: Adam
