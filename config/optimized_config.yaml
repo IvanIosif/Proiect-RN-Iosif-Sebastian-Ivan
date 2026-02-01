@@ -1,0 +1,24 @@
+model_metadata:
+  name: TBC_Pneumo_Balanced_MLP
+  experiment: Exp3_Balanced
+  version: 1.0_Etapa6
+architecture:
+  input_features: 20
+  hidden_layers:
+  - 64
+  - 64
+  - 64
+  activation: relu
+  output_activation: sigmoid
+  dropout: 0.2
+semantic_boosting_rules:
+  tbc_anchor_boost: 1.55
+  general_tbc_boost: 1.25
+  pneu_decay: 0.98
+  anchor_indices:
+  - 14
+  - 15
+inference_settings:
+  threshold: 0.5
+  scaler_type: StandardScaler
+  scaler_file: scaler_optimized.pkl
