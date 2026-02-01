@@ -1,0 +1,7 @@
+{
+    "best_exp_id": "Exp3_Balanced",
+    "overall_accuracy": 0.8304444444444444,
+    "tbc_sensitivity_recall": 0.8595555555555555,
+    "pneumonia_specificity_recall": 0.8013333333333333,
+    "macro_f1": 0.8303006315623823
+}
