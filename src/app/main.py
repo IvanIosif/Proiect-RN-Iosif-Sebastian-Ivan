@@ -7,11 +7,23 @@ import pandas as pd
 from datetime import datetime
 import plotly.graph_objects as go
 
-# --- 1. ÎNCĂRCARE RESURSE (Cu Error Handling) ---
+# --- 0. CONFIGURARE CĂI RELATIVE (AUTOMATIZARE) ---
+
+current_dir = os.path.dirname(os.path.abspath(__file__))
+
+# Urcăm două niveluri pentru a ajunge la rădăcina proiectului (RN)
+PATH_BASE = os.path.abspath(os.path.join(current_dir, "../../"))
+
+# Definim căile către resurse relativ la rădăcină
+PATH_MODELS = os.path.join(PATH_BASE, "models")
+PATH_CONFIG = os.path.join(PATH_BASE, "config")
+PATH_STORAGE = os.path.join(PATH_BASE, "src", "stocare_date")
+
+# --- 1. ÎNCĂRCARE RESURSE (Cu Căi Dinamice) ---
 @st.cache_resource
 def load_resources():
-    model_path = r"D:\Facultate\RN\models\optimized_model.keras"
-    config_path = r"D:\Facultate\RN\config\scaler_optimized.skl"
+    model_path = os.path.join(PATH_MODELS, "optimized_model.keras")
+    config_path = os.path.join(PATH_CONFIG, "scaler_optimized.skl")
     
     try:
         if os.path.exists(model_path) and os.path.exists(config_path):
@@ -19,18 +31,18 @@ def load_resources():
             scaler_cfg = joblib.load(config_path)
             return model, scaler_cfg, None
         else:
-            return None, None, "Fișierele modelului (keras/skl) nu au fost găsite la calea specificată."
+            return None, None, f"Resursele nu au fost găsite la: {model_path}"
     except Exception as e:
         return None, None, f"Eroare critică la încărcarea resurselor: {str(e)}"
 
-# --- 2. LOGICĂ STOCARE DATE (Cu Error Handling) ---
+# --- 2. LOGICĂ STOCARE DATE (Cale Relativă) ---
 def log_diagnostic_to_csv(user_name, prediction, confidence, raw_values):
     try:
-        folder_path = r"D:\Facultate\RN\src\stocare_date"
-        if not os.path.exists(folder_path):
-            os.makedirs(folder_path, exist_ok=True)
+        # Creăm folderul de stocare dacă nu există
+        if not os.path.exists(PATH_STORAGE):
+            os.makedirs(PATH_STORAGE, exist_ok=True)
         
-        file_path = os.path.join(folder_path, "istoric_triaj.csv")
+        file_path = os.path.join(PATH_STORAGE, "istoric_triaj.csv")
         diagnostic = "TBC" if prediction >= 0.5 else "Pneumonie"
         
         new_entry = {
@@ -63,7 +75,7 @@ st.markdown("""
     </style>
     """, unsafe_allow_html=True)
 
-# Încercăm încărcarea și verificăm dacă suntem în ERROR_STATE
+# Încercăm încărcarea resurselor
 model, scaler_cfg, error_msg = load_resources()
 
 if error_msg:
@@ -114,23 +126,22 @@ with st.form("main_form"):
     
     submit = st.form_submit_button("🚀 ANALIZEAZĂ CAZUL", use_container_width=True)
 
-# --- 6. PROCESARE, SALVARE ȘI REZULTATE (Logica ERROR_STATE integrată) ---
+# --- 6. PROCESARE ȘI REZULTATE ---
 if submit:
-    # 1. Validare date identificare
     if not user_name.strip():
         st.error("## ⚠️ ERROR_STATE: Date de intrare incomplete")
         st.info("Sistemul necesită identificarea utilizatorului pentru a salva diagnosticul.")
     else:
         try:
-            # 2. Procesare matematică
+            # Procesare matematică
             input_numeric = np.array(raw_indices).astype(float) / 4.0
             input_numeric_reshaped = input_numeric.reshape(1, -1)
             
-            # 3. Predicție Model
+            # Predicție Model
             prediction = model.predict(input_numeric_reshaped, verbose=0)[0][0]
             confidence = prediction if prediction >= 0.5 else (1 - prediction)
             
-            # 4. Salvare Date (Logica LOG_DATA)
+            # Salvare Date
             success_log, log_err = log_diagnostic_to_csv(user_name, prediction, confidence, raw_indices)
             
             # Afișare Rezultate
@@ -154,7 +165,7 @@ if submit:
                 st.metric("Nivel de Încredere", f"{confidence*100:.2f}%")
                 st.progress(float(confidence))
 
-            # 5. Analiza Vizuală
+            # Analiza Vizuală
             weights = model.layers[0].get_weights()[0]
             influence = np.mean(weights, axis=1) * input_numeric
             with st.expander("📊 Vezi analiza impactului simptomelor"):
@@ -163,6 +174,5 @@ if submit:
                 st.plotly_chart(fig, use_container_width=True)
 
         except Exception as ex:
-            # Capturăm orice altă eroare neprevăzută (crash model, memorie etc.)
             st.error(f"## 🚩 ERROR_STATE: Eroare neașteptată în timpul procesării")
             st.info(f"Detalii tehnice: {str(ex)}")
