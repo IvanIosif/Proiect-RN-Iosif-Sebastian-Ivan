@@ -1,4 +1,4 @@
-# Sistem cu inteligență artificială de Diagnosticare si Triaj Medical
+# Sistem cu inteligență artificială de Diagnosticare si Triaj Medical
 
 **Student:** Ivan Iosif-Sebastian  
 **Grupa:** 633AB
