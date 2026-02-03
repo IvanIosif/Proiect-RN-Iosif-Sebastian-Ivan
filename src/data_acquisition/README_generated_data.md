@@ -7,7 +7,7 @@ Acest modul gestionează întregul flux de date al sistemului, transformând log
 normalizate și gata pentru antrenarea rețelei neuronale.
 ## 🧪 Metodologie: Simulare vs. Date Reale
 Spre deosebire de o generare pur aleatorie, sistemul utilizează un Logic Map (hartă de probabilități) pentru a simula profiluri reale de pacienți:
-### Scriptul `generate_data.py`
+### Scriptul `generate.py`
 1.  **Ancore Medicale (Heavy Features): Întrebările critice precum Q15 (Greutate) și Q16 (Sânge) au o probabilitate de 85% de a urma diagnosticul corect, în timp ce restul simptomelor au o probabilitate de 65%.
 2.  **Zgomot Clinic (Chaotic Mode): Am introdus o rată de 35% de date haotice pentru a simula pacienții care oferă răspunsuri contradictorii sau simptome atipice, forțând astfel rețeaua să învețe generalizarea, nu doar memorarea.
 3.  **Volum: Generăm un set echilibrat de 30.000 de cazuri (15.000 per clasă).
